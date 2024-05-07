@@ -73,100 +73,80 @@
     </div>
     <div class="h-full w-4/12 pr-5">
         <div class="cart w-full overflow-hidden bg-white shadow-xl rounded-md">
-            <div class="px-6 py-4 bg-gray-200">
-                <span class="font-bold text-sm">Billing Section</span>
-            </div>
-            <div class="table w-full pt-5 px-4">
-                <table class="table w-full border border-gray-200">
-                    <thead>
-                    <tr class="border-b border-gray-200 text-sm h-10">
-                        <th>ITEM</th>
-                        <th>QTY</th>
-                        <th>PRICE</th>
-                        <th>DELETE</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($products as $product)
-                        <tr class="text-center border-b border-gray-200">
-                            <td class="px-4 py-2 flex gap-4 items-center"><img
-                                    src="{{ asset('products/'. $product->image) }}" width="40"
-                                    alt=""><span>{{ $product->name }}</span></td>
-                            <td class="px-4 py-2"><input type="number"
-                                                         class="quantity-input border border-gray-250 w-10 text-center remove-arrow focus:!outline-none"
-                                                         min="0" value="0"
-                                                         data-id="{{ $product->id }}" min="0" value="1"
-                                                         data-price="{{ $product->selling_price }}"
-                                                         data-discount="{{ $product->discount_percentage }}"
-                                                         data-tax="{{ $product->tax_percentage }}"/>
-                            </td>
-                            <td class="px-4 py-2" id="price{{ $product->id }}">{{ $product->selling_price }}
-                                $
-                            </td>
-                            <td class="px-4 py-2">
-                                <button type="button" data-id="{{ $product->id }}"
-                                        class="delete-btn text-lg border border-red-600 rounded-md px-1.5 py-2 text-center inline-flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
-                                         viewBox="0 0 24 24">
-                                        <path fill="#ff0000"
-                                              d="m9.4 16.5l2.6-2.6l2.6 2.6l1.4-1.4l-2.6-2.6L16 9.9l-1.4-1.4l-2.6 2.6l-2.6-2.6L8 9.9l2.6 2.6L8 15.1zM7 21q-.825 0-1.412-.587T5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .825-.587 1.413T17 21zM17 6H7v13h10zM7 6v13z"/>
-                                    </svg>
-                                </button>
-                            </td>
+            <form id="orderForm" method="post" action="/place-order">
+                @csrf
+                <div class="px-6 py-4 bg-gray-200">
+                    <span class="font-bold text-sm">Billing Section</span>
+                </div>
+                <div class="table w-full pt-5 px-4">
+                    <table class="table w-full border border-gray-200">
+                        <thead>
+                        <tr class="border-b border-gray-200 text-sm h-10">
+                            <th>ITEM</th>
+                            <th>QTY</th>
+                            <th>PRICE</th>
+                            <th>DELETE</th>
                         </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
-            <div class="px-3 py-3">
-                @php
-                    $subTotal = $products->first()->selling_price + $products->skip(1)->first()->selling_price +  $products->skip(2)->first()->selling_price;
-                    $tax = ($products->first()->tax_percentage ? ($products->first()->tax_percentage / 100) : 0)
-                         + ($products->skip(1)->first()->tax_percentage ? ($products->skip(1)->first()->tax_percentage / 100) : 0)
-                         + ($products->skip(2)->first()->tax_percentage ? ($products->skip(2)->first()->tax_percentage / 100) : 0);
+                        </thead>
+                        <tbody>
+                        @foreach($products->take(3) as $product)
+                            <tr class="text-center border-b border-gray-200">
+                                <td class="px-4 py-2 flex gap-4 items-center"><img
+                                        src="{{ asset('products/'. $product->image) }}" width="40"
+                                        alt=""><span>{{ $product->name }}</span></td>
+                                <td class="px-4 py-2"><input type="number" name="products[{{ $product->id }}][quantity]"
+                                                             class="quantity-input border border-gray-250 w-10 text-center remove-arrow focus:!outline-none"
+                                                             min="0" value="0"
+                                                             data-id="{{ $product->id }}" min="0" value="1"
+                                                             data-price="{{ $product->selling_price }}"
+                                                             data-discount="{{ $product->discount_percentage }}"
+                                                             data-tax="{{ $product->tax_percentage }}"/>
+                                </td>
+                                <td class="px-4 py-2" id="price{{ $product->id }}">{{ $product->selling_price }}
+                                    $
+                                </td>
+                                <td class="px-4 py-2">
+                                    <button type="button" data-id="{{ $product->id }}"
+                                            class="delete-btn text-lg border border-red-600 rounded-md px-1.5 py-2 text-center inline-flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
+                                             viewBox="0 0 24 24">
+                                            <path fill="#ff0000"
+                                                  d="m9.4 16.5l2.6-2.6l2.6 2.6l1.4-1.4l-2.6-2.6L16 9.9l-1.4-1.4l-2.6 2.6l-2.6-2.6L8 9.9l2.6 2.6L8 15.1zM7 21q-.825 0-1.412-.587T5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .825-.587 1.413T17 21zM17 6H7v13h10zM7 6v13z"/>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="px-3 py-3">
+                    <div class="flex justify-between pb-3">
+                        <span>Sub total :</span>
+                        <span id="subtotal"></span>
+                    </div>
 
-                    $total = (($products->first()->discount_percentage ?
-                            $products->first()->selling_price - ($products->first()->selling_price * $products->first()->discount_percentage / 100) :
-                            $products->first()->selling_price
-                        )
-                        + ($products->skip(1)->first()->discount_percentage ?
-                            $products->skip(1)->first()->selling_price - ($products->skip(1)->first()->selling_price * $products->skip(1)->first()->discount_percentage / 100) :
-                            $products->skip(1)->first()->selling_price
-                        )
-                        + ($products->skip(2)->first()->discount_percentage ?
-                            $products->skip(2)->first()->selling_price - ($products->skip(2)->first()->selling_price * $products->skip(2)->first()->discount_percentage / 100) :
-                            $products->skip(2)->first()->selling_price
-                        )) + $tax;
-
-                    $discount = ($products->first()->discount_percentage ? $products->first()->selling_price * ($products->first()->discount_percentage) / 100 : 0)
-                                +($products->skip(1)->first()->discount_percentage ? $products->skip(1)->first()->selling_price * ($products->skip(1)->first()->discount_percentage) / 100 : 0)
-                                +($products->skip(2)->first()->discount_percentage ? $products->skip(2)->first()->selling_price * ($products->skip(2)->first()->discount_percentage) / 100 : 0);
-                @endphp
-                <div class="flex justify-between pb-3">
-                    <span>Sub total :</span>
-                    <span id="subtotal"></span>
+                    <div class="flex justify-between pb-28">
+                        <span>Product Discount :</span>
+                        <span id="discount"></span>
+                    </div>
+                    <div class="flex justify-between pb-3">
+                        <span>Tax :</span>
+                        <span id="tax"></span>
+                    </div>
+                    <div class="flex justify-between py-3">
+                        <span>Total :</span>
+                        <span id="total"></span>
+                    </div>
                 </div>
-
-                <div class="flex justify-between pb-28">
-                    <span>Product Discount :</span>
-                    <span id="discount"></span>
+                <div class="w-full px-4 py-2">
+                    <button type="submit"
+                            class="w-full focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-md text-md px-5 py-2.5 me-2 mb-2"
+                    >
+                        Place Order
+                    </button>
                 </div>
-                <div class="flex justify-between pb-3">
-                    <span>Tax :</span>
-                    <span id="tax"></span>
-                </div>
-                <div class="flex justify-between py-3">
-                    <span>Total :</span>
-                    <span id="total"></span>
-                </div>
-            </div>
-            <div class="w-full px-4 py-2">
-                <button type="button"
-                        class="w-full focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-md text-md px-5 py-2.5 me-2 mb-2"
-                        >
-                    Place Order
-                </button>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -231,5 +211,34 @@
 
         updatePrices();
     });
+
+    document.getElementById('orderForm').addEventListener('submit', function(event) {
+        event.preventDefault();  // Prevent default form submission
+
+        const formData = new FormData(this);
+
+        // Optionally add or adjust formData here if necessary
+        // For example, add totals which are not in form inputs
+        const totalElement = document.getElementById('total');
+        if (totalElement) {
+            formData.append('total', totalElement.textContent.replace(' $', ''));
+        }
+
+        // Submit form via Fetch API or another method
+        fetch('/place-order', {
+            method: 'POST',
+            body: formData,
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                // Handle success such as redirecting to a thank you page or showing a success message
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                // Handle errors
+            });
+    });
+
 </script>
 </html>
