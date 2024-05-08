@@ -38,13 +38,15 @@
                     </div>
                     <input type="search" id="default-search"
                            class="block w-full p-3 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:!outline-none "
-                           placeholder="Search by code or name"/>
+                           placeholder="Search by sku or name"/>
                 </div>
                 <div class="main-content mt-5">
                     <div class="grid grid-cols-6 gap-4">
                         @foreach($products as $product)
                             <div
-                                class="flex w-full max-w-xs flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md">
+                                class="product-item flex w-full max-w-xs flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md"
+                                data-name="{{ strtolower($product->name) }}"
+                                data-sku="{{ strtolower($product->sku) }}">
                                 <div class="flex h-40 p-2 rounded-sm">
                                     <img class="object-cover object-center rounded-lg"
                                          src="{{ asset('products/'. $product->image) }}"
@@ -264,4 +266,26 @@
             });
     });
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('default-search');
+        const products = document.querySelectorAll('.product-item');
+
+        searchInput.addEventListener('input', function(event) {
+            const searchText = event.target.value.trim().toLowerCase();
+
+            products.forEach(function(product) {
+                const productName = product.getAttribute('data-name').toLowerCase();
+                const productSku = product.getAttribute('data-sku').toLowerCase();
+
+                if (productName.includes(searchText) || productSku.includes(searchText)) {
+                    product.style.display = 'block';
+                } else {
+                    product.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+
 </html>

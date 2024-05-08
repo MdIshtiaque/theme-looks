@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('sku')->unique();
             $table->string('unit');
-            $table->float('unit_value');
+            $table->string('unit_value');
             $table->decimal('selling_price', 10, 2);
             $table->decimal('purchase_price', 10, 2);
             $table->decimal('discount_percentage', 5, 2)->nullable();

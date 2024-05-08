@@ -24,8 +24,8 @@ class ProductRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'sku' => 'required|string|unique:products,sku',
-            'unit' => 'required|numeric|max:255',
-            'unit_value' => 'required|numeric|min:0',
+            'unit' => 'required|string|max:255',
+            'unit_value' => 'required|string|min:0',
             'selling_price' => 'required|numeric|min:0',
             'purchase_price' => 'required|numeric|min:0',
             'discount_percentage' => 'nullable|numeric|min:0|max:100',
