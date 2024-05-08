@@ -10,13 +10,22 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet"/>
     @vite('resources/css/app.css')
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/sweetalert2/5.3.5/sweetalert2.min.css">
 </head>
 <body>
 <div class="flex h-screen w-full bg-gray-300">
     <div class="h-full w-8/12 px-5">
         <div class="w-full h-full overflow-hidden bg-white shadow-xl">
-            <div class="px-6 py-4 bg-gray-200">
+            <div class="px-6 py-4 bg-gray-200 flex justify-between">
                 <span class="font-bold text-sm">Product Section</span>
+            <div class="flex items-center">
+                <a href="{{ route('list.order') }}" type="button"
+                   class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2 text-center me-2 mb-2">My
+                    Order List</a>
+                <a href="{{ route('add.product') }}" type="button"
+                   class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2 text-center me-2 mb-2">Add
+                    Product</a>
+            </div>
             </div>
             <div class="px-6 pt-4 pb-2">
                 <div class="search relative">
@@ -96,7 +105,6 @@
                                         alt=""><span>{{ $product->name }}</span></td>
                                 <td class="px-4 py-2"><input type="number" name="products[{{ $product->id }}][quantity]"
                                                              class="quantity-input border border-gray-250 w-10 text-center remove-arrow focus:!outline-none"
-                                                             min="0" value="0"
                                                              data-id="{{ $product->id }}" min="0" value="1"
                                                              data-price="{{ $product->selling_price }}"
                                                              data-discount="{{ $product->discount_percentage }}"
@@ -160,8 +168,8 @@
                 const productId = this.getAttribute('data-id');
                 console.log(productId);
                 const row = this.closest('tr');
-                row.remove();  // Remove the row from the table
-                updatePrices();  // Update prices after removing the item
+                row.remove();
+                updatePrices();
             });
         });
 
@@ -194,8 +202,6 @@
                 const discountedPrice = basePrice - discount;
                 const tax = discountedPrice * (taxPercentage / 100);
 
-                // document.getElementById('price' + id).textContent = discountedPrice.toFixed(2) + ' $';
-
                 subtotal += basePrice;
                 totalTax += tax;
                 totalDiscount += discount;
@@ -211,34 +217,51 @@
 
         updatePrices();
     });
-
-    document.getElementById('orderForm').addEventListener('submit', function(event) {
-        event.preventDefault();  // Prevent default form submission
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.getElementById('orderForm').addEventListener('submit', function (event) {
+        event.preventDefault();
 
         const formData = new FormData(this);
 
-        // Optionally add or adjust formData here if necessary
-        // For example, add totals which are not in form inputs
         const totalElement = document.getElementById('total');
         if (totalElement) {
             formData.append('total', totalElement.textContent.replace(' $', ''));
         }
 
-        // Submit form via Fetch API or another method
         fetch('/place-order', {
             method: 'POST',
             body: formData,
         })
             .then(response => response.json())
             .then(data => {
-                console.log('Success:', data);
-                // Handle success such as redirecting to a thank you page or showing a success message
+                if (data.success) {
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "success",
+                        title: "Your order has been placed",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+
+                    document.querySelectorAll('.quantity-input').val = 0;
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Failed to place order',
+                    });
+                }
             })
-            .catch((error) => {
+            .catch(error => {
                 console.error('Error:', error);
-                // Handle errors
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'An error occurred while placing the order',
+                });
             });
     });
-
 </script>
 </html>
